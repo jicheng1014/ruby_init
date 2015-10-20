@@ -197,6 +197,17 @@ elif [ $whichRuby -eq 3 ] ; then
 fi
 echo "==> done..."
 
+echo -e "\n=> install Gem fir-cli ..."
+if [ $whichRuby -eq 1 ] ; then
+  sudo gem install fir-cli --no-ri --no-rdoc >> $log_file 2>&1
+elif [ $whichRuby -eq 2 ] ; then
+  gem install fir-cli --no-ri --no-rdoc >> $log_file 2>&1
+elif [ $whichRuby -eq 3 ] ; then
+  gem install fir-cli --no-ri --no-rdoc >> $log_file 2>&1
+fi
+echo "==> done..."
+
+
 echo -e "\n#################################"
 echo    "### Installation is complete! ###"
 echo -e "#################################\n"
