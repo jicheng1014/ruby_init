@@ -68,6 +68,7 @@ echo -e "\n"
 echo "What this script gets you:"
 echo " * Ruby $ruby_version_string"
 echo " * Git"
+echo " * fir cli Gem"
 
 
 # Check if the user has sudo privileges.
@@ -82,14 +83,19 @@ echo "=> 3. Install rbenv"
 echo -n "Select your Ruby type [1, 2, 3]? "
 read whichRuby
 
-if [ $whichRuby -eq 1 ] ; then
-  echo -e "\n\n!!! Set to build Ruby from source and install system wide !!! \n"
-elif [ $whichRuby -eq 2 ] ; then
-  echo -e "\n\n!!! Set to install RVM for user: $script_runner !!! \n"
-elif [ $whichRuby -eq 3 ] ; then
-  echo -e "\n\n!!! Set to install rbenv for user: $script_runner !!! \n"
+echo -e "\n"
+echo "Using Taobao Gem source for avoiding GFW block?"
+echo "=> '1' to use Gem source Mirror from Taobao"
+echo "=> '0' or other to download gem directly"
+echo -n "Select [1, 0]? "
+read useMirror
+
+
+
+if [ $useMirror -eq 1 ] ; then
+  echo -e "\n\n!!! use taobao gem source \n"
 else
-  echo -e "\n\n!!! Must choose to build Ruby, RVM or rbenv, exiting !!!"
+  echo -e "\n\n!!! okay, download gem from official source !"
   exit 1
 fi
 
@@ -133,6 +139,12 @@ elif [ $whichRuby -eq 2 ] ; then
   fi
   echo "==> done..."
   echo "=> Loading RVM..."
+ 
+
+
+
+
+  
   if [ -f ~/.profile ] ; then
     source ~/.profile
   fi
@@ -145,6 +157,15 @@ elif [ $whichRuby -eq 2 ] ; then
   if [ -f /etc/profile.d/rvm.sh ] ; then
     source /etc/profile.d/rvm.sh
   fi
+  if [ $useMirror -eq 1 ] ; then
+    if [[ $system_os = *linux* ]] ; then
+      sed -i 's!cache.ruby-lang.org/pub/ruby!ruby.taobao.org/mirrors/ruby!' $rvm_path/config/db
+    else
+      sed -i .bak 's!cache.ruby-lang.org/pub/ruby!ruby.taobao.org/mirrors/ruby!' $rvm_path/config/db
+    fi
+  fi
+
+
   echo "==> done..."
   echo -e "\n=> Installing Ruby $ruby_version_string (this will take a while)..."
   echo -e "=> More information about installing rubies can be found at http://rvm.beginrescueend.com/rubies/installing/ \n"
@@ -186,6 +207,13 @@ if [ -f ~/.bashrc ] ; then
   source ~/.bashrc
 fi
 echo "==> done..."
+
+if [ $useMirror -eq 1 ] ; then
+  sudo gem sources --add https://ruby.taobao.org/ --remove https://rubygems.org/
+  sudo gem update --system --no-ri --no-rdoc >> $log_file 2>&1
+fi
+
+
 
 echo -e "\n=> Updating Rubygems..."
 if [ $whichRuby -eq 1 ] ; then
